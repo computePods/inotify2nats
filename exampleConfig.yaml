@@ -1,0 +1,15 @@
+# This is an example configuration file for inotify2nats
+
+natsServer:
+  cert: aCert
+  key: aKey
+  port: 1234
+  host: aHost
+
+watches:
+  - channel: majorDomo.aPod.externalWebServer.reload
+    dirs:
+      - computePodsMajorDomo/cpmd
+  - channel: contextWS
+    dirs:
+      - contextWS
