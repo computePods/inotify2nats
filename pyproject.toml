@@ -1,0 +1,28 @@
+[project]
+name = "inotify2nats"
+version = "0.0.1"
+description = "Inotify2NATS is a simple Python application which forwards various Linux file system inotify events onto a NATS server."
+authors = [
+    {name = "Stephen Gaito", email = "stephen@perceptisys.co.uk"},
+]
+dependencies = [
+    "asyncinotify~=2.0",
+    "pyyaml~=5.4",
+    "asyncio-nats-client~=0.11",
+]
+requires-python = ">=3.9"
+dynamic = ["classifiers"]
+license = {text = "Apache-2.0"}
+
+[project.urls]
+homepage = "https://github.com/computePods/inotify2nats"
+
+[project.scripts]
+cpinotify = "cpinotify:cli"
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
