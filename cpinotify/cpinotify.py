@@ -15,8 +15,8 @@ import signal
 import traceback
 
 import cpinotify.loadConfiguration
-import cpinotify.recursivewatch
-from .natsClient import NatsClient
+import cputils.recursivewatch
+from   cputils.natsClient import NatsClient
 
 argparser = argparse.ArgumentParser(description="Listen for inotify events and forward them onto a NATS server")
 argparser.add_argument('-b', '--base-dir',
@@ -53,7 +53,7 @@ async def main(config) :
   await natsClient.connectToServers()
 
   try:
-    await  cpinotify.recursivewatch.watchForInotifyEvents(config['watches'], natsClient)
+    await  cputils.recursivewatch.watchForInotifyEvents(config['watches'], natsClient)
   except SignalException as err :
     logging.info("Shutting down: {}".format(str(err)))
   except KeyboardInterrupt as err :

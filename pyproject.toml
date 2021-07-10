@@ -6,9 +6,7 @@ authors = [
     {name = "Stephen Gaito", email = "stephen@perceptisys.co.uk"},
 ]
 dependencies = [
-    "asyncinotify~=2.0",
-    "pyyaml~=5.4",
-    "asyncio-nats-client~=0.11",
+    "ComputePodPythonUtils @ git+https://github.com/computePods/pythonUtils.git"
 ]
 requires-python = ">=3.9"
 dynamic = ["classifiers"]
