@@ -49,11 +49,20 @@ signal.signal(signal.SIGTERM, signalHandler)
 signal.signal(signal.SIGHUP, signalHandler)
 
 async def main(config) :
-  natsClient = NatsClient("cpLogger")
+  natsClient = NatsClient("cpLogger", 10)
   await natsClient.connectToServers()
 
-  await  cpinotify.recursivewatch.watchForInotifyEvents(config['watches'], natsClient)
-
+  try:
+    await  cpinotify.recursivewatch.watchForInotifyEvents(config['watches'], natsClient)
+  except SignalException as err :
+    logging.info("Shutting down: {}".format(str(err)))
+  except KeyboardInterrupt as err :
+    logging.info("Shutting down: {}".format(str(err)))
+  except Exception as err :
+    msg = "\n ".join(traceback.format_exc().split("\n"))
+    logging.info("Shutting down after exception: \n {}".format(msg))
+  finally:
+    await natsClient.closeConnection()
 
 def cli() :
   configFile = './cpinotifyConfig.yaml'
@@ -63,5 +72,17 @@ def cli() :
   config = cpinotify.loadConfiguration.loadConfig(configFile, verbose)
 
   logging.info("ComputePods inotify2nats starting")
-  asyncio.run(main(config))
+
+  try:
+    asyncio.run(main(config))
+  except SignalException as err :
+    print("")
+    logging.info("Shutting down: {}".format(str(err)))
+  except KeyboardInterrupt as err :
+    print("")
+    logging.info("Shutting down from KeyboardInterrupt: {}".format(str(err)))
+  except Exception as err :
+    msg = "\n ".join(traceback.format_exc().split("\n"))
+    logging.info("Shutting down after exception: \n {}".format(msg))
+
   logging.info("ComputePods inotify2nats stopping")

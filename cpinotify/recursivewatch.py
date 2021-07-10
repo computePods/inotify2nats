@@ -105,5 +105,10 @@ async def watch_recursive(watches):
 
 async def watchForInotifyEvents(watches, natsClient):
   async for event in watch_recursive(watches):
-    print(f'MAIN: got {event} for path {event.path}')
-    await natsClient.sendMessage("silly", f'got {event} for path {event.path}')
+    #print(f'MAIN: got {event} for path {event.path}')
+    theMsg = {
+      'mask': str(event.mask),
+      'path': str(event.path)
+    }
+    print(f'MAIN: {theMsg}')
+    await natsClient.sendMessage("silly", theMsg)

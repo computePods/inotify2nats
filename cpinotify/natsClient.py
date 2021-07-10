@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import platform
@@ -17,13 +18,40 @@ async def natsClientReconnected() :
 
 class NatsClient :
 
-  def __init__(self, aContainerName) :
+  def __init__(self, aContainerName, aHeartBeatPeriod) :
     self.nc = NATS()
     self.containerName = aContainerName
+    self.heartBeatPeriod = aHeartBeatPeriod
     self.shutdown   = False
 
+  async def heartBeat(self) :
+    logging.info("NatsClient: starting heartbeat")
+    while not self.shutdown :
+      logging.debug("NatsClient: heartbeat")
+      loadAvg = os.getloadavg()
+      msg = "hello from {}-{} (1:{} 5:{} 15:{})".format(
+        platform.node(), self.containerName,
+        loadAvg[0], loadAvg[1], loadAvg[2]
+      )
+      await self.nc.publish("heartbeat", bytes(msg, 'utf-8'))
+      await asyncio.sleep(self.heartBeatPeriod)
+
+  async def sendMessage(self, aSubject, aMsg) :
+    msgStr = json.dumps(aMsg)
+    await self.nc.publish(aSubject, bytes(msgStr, 'utf-8'))
+
+  async def listenToSubject(self, aSubject, aCallback) :
+    print("listening to subject [{}]".format(aSubject))
+
+    def subjectCallback(aNATSMessage) :
+      theSubject = aNATSMessage.subject
+      theJSONMsg = aNATSMessage.data
+      theMsg = json.loads(theJSONMsg)
+      aCallback(aSubject, theSubject, theMsg)
+
+    await self.nc.subscribe(aSubject, cb=subjectCallback)
+
   async def connectToServers(self):
-    logging.info("NatsClient: connecting to NATS server")
     await self.nc.connect(
       servers=["nats://127.0.0.1:4222"],
       error_cb=natsClientError,
@@ -31,16 +59,7 @@ class NatsClient :
       reconnected_cb=natsClientReconnected
     )
 
-  async def sendMessage(self, aSubject, aMessage) :
-    print(f"sending message: {aSubject}:[{aMessage}]")
-    await self.nc.publish(aSubject, bytes(aMessage, 'utf-8'))
-
-  async def listenToChannel(self, aChannel, aCallBack) :
-    print("listening to channel [{}]".format(aChannel))
-    await self.nc.subscribe(aChannel, cb=aCallBack)
-
   async def closeConnection(self) :
-    logging.info("NatsCllient: closing connection")
     # Terminate connection to NATS.
     self.shutdown = True
     await asyncio.sleep(1)
