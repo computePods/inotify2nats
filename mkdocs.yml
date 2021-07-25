@@ -1,0 +1,15 @@
+site_name: ComputePods inotify to NATS tool
+
+site_url: https://computepods.github.io/inotify2nats
+
+repo_url: https://github.com/computePods/inotify2nats
+
+plugins:
+  - search
+  - awesome-pages
+  - mkdocstrings:
+      watch:
+        - cpinotify
+
+theme:
+  name: material

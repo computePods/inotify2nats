@@ -18,21 +18,6 @@ import cpinotify.loadConfiguration
 import cputils.recursivewatch
 from   cputils.natsClient import NatsClient
 
-argparser = argparse.ArgumentParser(description="Listen for inotify events and forward them onto a NATS server")
-argparser.add_argument('-b', '--base-dir',
-  help="Specify the base directory for all releative paths")
-argparser.add_argument('-c', '--config',
-  help="Load configuration from file")
-argparser.add_argument('-P', '--port',
-  help="The NATs server's port")
-argparser.add_argument('-H', '--host',
-  help="The NATs server's host")
-argparser.add_argument('-v', '--verbose',
-  action=argparse.BooleanOptionalAction,
-  help="Report additional information about what is happening")
-
-cliArgs = argparser.parse_args()
-
 #logging.basicConfig(filename='inotify2nats.log', encoding='utf-8', level=logging.DEBUG)
 logging.basicConfig(level=logging.INFO)
 
@@ -65,6 +50,21 @@ async def main(config) :
     await natsClient.closeConnection()
 
 def cli() :
+  argparser = argparse.ArgumentParser(description="Listen for inotify events and forward them onto a NATS server")
+  argparser.add_argument('-b', '--base-dir',
+    help="Specify the base directory for all releative paths")
+  argparser.add_argument('-c', '--config',
+    help="Load configuration from file")
+  argparser.add_argument('-P', '--port',
+    help="The NATs server's port")
+  argparser.add_argument('-H', '--host',
+    help="The NATs server's host")
+  argparser.add_argument('-v', '--verbose',
+    action=argparse.BooleanOptionalAction,
+    help="Report additional information about what is happening")
+
+  cliArgs = argparser.parse_args()
+
   configFile = './cpinotifyConfig.yaml'
   if cliArgs.config  : configFile = cliArgs.config
   verbose    = False
