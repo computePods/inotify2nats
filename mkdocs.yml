@@ -6,6 +6,7 @@ repo_url: https://github.com/computePods/inotify2nats
 
 plugins:
   - search
+  - compute-pods
   - awesome-pages
   - mkdocstrings:
       watch:
